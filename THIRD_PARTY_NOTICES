@@ -1,0 +1,20 @@
+KIVRIM - Third-party notices
+===========================
+
+KIVRIM's original source code and documentation are licensed under the MIT
+License in LICENSE. The codec and directory archiver have no external library
+dependencies.
+
+XXH32 algorithm acknowledgment
+-------------------------------
+
+The checksums in src/kivrim.c and src/archive.c independently implement the
+published XXH32 algorithm with seed zero. The algorithm was designed by Yann Collet.
+KIVRIM does not vendor or link the upstream xxHash library.
+
+Algorithm specification:
+https://github.com/Cyan4973/xxHash/blob/v0.8.3/doc/xxhash_spec.md
+
+Upstream xxHash library and its BSD-2-Clause license:
+https://github.com/Cyan4973/xxHash
+https://github.com/Cyan4973/xxHash/blob/v0.8.3/LICENSE

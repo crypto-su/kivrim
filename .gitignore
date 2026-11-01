@@ -1,0 +1,7 @@
+/build/
+/test/
+/videos/
+/restored/
+*.kvr
+*.kva
+.DS_Store
