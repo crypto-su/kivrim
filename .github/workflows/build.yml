@@ -30,6 +30,9 @@ jobs:
             cc: gcc
             shell: msys2 {0}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     env:
       CC: ${{ matrix.cc }}
     steps:
@@ -47,10 +50,8 @@ jobs:
             make
             diffutils
       - name: Build codec and directory archiver
-        shell: ${{ matrix.shell }}
         run: make CFLAGS='-O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror'
       - name: Verify lossless roundtrips and output protection
-        shell: ${{ matrix.shell }}
         run: |
           set -euo pipefail
           mkdir -p test
