@@ -10,8 +10,18 @@ compact references to reconstruct the original files.
 
 ### Build
 
-KIVRIM needs a C11 compiler and Make, with no external library dependencies.
-The tools run on Linux and macOS. Run all commands below from the repository directory.
+KIVRIM needs a C11 compiler and Make. Its compression code has no external library
+dependencies. The tools run on Linux, macOS, and Windows through
+[MSYS2](https://www.msys2.org/).
+
+On Windows, open the **MSYS2 MSYS** terminal and install the build tools:
+
+```sh
+pacman -S --needed gcc make git
+```
+
+Windows builds use the MSYS2 runtime (`msys-2.0.dll`); run the tools in the same
+MSYS environment. Then clone and build the project:
 
 ```sh
 git clone https://github.com/crypto-su/kivrim.git
@@ -27,7 +37,7 @@ make
 
 Compiler options can be supplied with `CC`, `CFLAGS`, `CPPFLAGS`, and `LDFLAGS`;
 run `make clean` before changing build options. GitHub Actions builds the C
-components on Linux and macOS.
+components and checks lossless roundtrips on Linux, macOS, and Windows (MSYS2).
 
 ### Compress a file
 
@@ -117,8 +127,18 @@ saklanır; özgün dosyalar küçük referans kayıtları kullanılarak geri olu
 
 ### Derleme
 
-KIVRIM için C11 derleyicisi ve Make yeterlidir; harici kütüphane bağımlılığı yoktur.
-Araçlar Linux ve macOS üzerinde çalışır. Aşağıdaki komutları proje dizininden çalıştırın.
+KIVRIM için C11 derleyicisi ve Make gerekir. Sıkıştırma kodunun harici kütüphane
+bağımlılığı yoktur. Araçlar Linux, macOS ve [MSYS2](https://www.msys2.org/)
+üzerinden Windows'ta çalışır.
+
+Windows'ta **MSYS2 MSYS** terminalini açıp derleme araçlarını kurun:
+
+```sh
+pacman -S --needed gcc make git
+```
+
+Windows derlemeleri MSYS2 çalışma zamanını (`msys-2.0.dll`) kullanır; araçları
+aynı MSYS ortamında çalıştırın. Ardından projeyi indirip derleyin:
 
 ```sh
 git clone https://github.com/crypto-su/kivrim.git
@@ -134,7 +154,8 @@ make
 
 Derleyici seçenekleri `CC`, `CFLAGS`, `CPPFLAGS` ve `LDFLAGS` ile verilebilir.
 Derleme seçeneklerini değiştirmeden önce `make clean` çalıştırın.
-GitHub Actions, C bileşenlerini Linux ve macOS üzerinde derler.
+GitHub Actions, C bileşenlerini Linux, macOS ve Windows (MSYS2) üzerinde derler
+ve sıkıştırılıp açılan verinin kayıpsız olduğunu kontrol eder.
 
 ### Tek dosya sıkıştırma
 

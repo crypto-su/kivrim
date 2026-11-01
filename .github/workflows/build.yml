@@ -1,4 +1,4 @@
-name: C build
+name: C build and roundtrip checks
 
 on: [push, pull_request]
 
@@ -7,16 +7,28 @@ permissions:
 
 jobs:
   build:
+    name: ${{ matrix.name }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - name: Linux / GCC
+            os: ubuntu-latest
             cc: gcc
-          - os: ubuntu-latest
+            shell: bash
+          - name: Linux / Clang
+            os: ubuntu-latest
             cc: clang
-          - os: macos-latest
+            shell: bash
+          - name: macOS / Clang
+            os: macos-latest
             cc: clang
+            shell: bash
+          - name: Windows / MSYS2 GCC
+            os: windows-latest
+            cc: gcc
+            shell: msys2 {0}
     runs-on: ${{ matrix.os }}
     env:
       CC: ${{ matrix.cc }}
@@ -24,5 +36,66 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Set up MSYS2 on Windows
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          update: true
+          install: >-
+            gcc
+            make
+            diffutils
       - name: Build codec and directory archiver
+        shell: ${{ matrix.shell }}
         run: make CFLAGS='-O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror'
+      - name: Verify lossless roundtrips and output protection
+        shell: ${{ matrix.shell }}
+        run: |
+          set -euo pipefail
+          mkdir -p test
+          ci_dir=$(mktemp -d test/ci.XXXXXX)
+          trap 'rm -r -- "$ci_dir"' EXIT
+
+          ./build/kivrim --version
+          ./build/kivrim-archive --version
+
+          for mode in auto fast; do
+            if [ "$mode" = fast ]; then
+              ./build/kivrim c --fast src/kivrim.c "$ci_dir/$mode.kvr"
+            else
+              ./build/kivrim c src/kivrim.c "$ci_dir/$mode.kvr"
+            fi
+            ./build/kivrim d "$ci_dir/$mode.kvr" "$ci_dir/$mode.c"
+            cmp src/kivrim.c "$ci_dir/$mode.c"
+
+            if ./build/kivrim c src/kivrim.c "$ci_dir/$mode.kvr"; then
+              echo 'Compression overwrote an existing archive' >&2
+              exit 1
+            fi
+            if ./build/kivrim d "$ci_dir/$mode.kvr" "$ci_dir/$mode.c"; then
+              echo 'Decompression overwrote an existing file' >&2
+              exit 1
+            fi
+            cmp src/kivrim.c "$ci_dir/$mode.c"
+          done
+
+          for mode in fast auto; do
+            if [ "$mode" = auto ]; then
+              ./build/kivrim-archive c src "$ci_dir/$mode.kva" --auto
+            else
+              ./build/kivrim-archive c src "$ci_dir/$mode.kva"
+            fi
+            ./build/kivrim-archive d "$ci_dir/$mode.kva" "$ci_dir/$mode-files"
+            diff -r src "$ci_dir/$mode-files"
+
+            if ./build/kivrim-archive c src "$ci_dir/$mode.kva"; then
+              echo 'Archiving overwrote an existing archive' >&2
+              exit 1
+            fi
+            if ./build/kivrim-archive d "$ci_dir/$mode.kva" "$ci_dir/$mode-files"; then
+              echo 'Extraction overwrote an existing directory' >&2
+              exit 1
+            fi
+            diff -r src "$ci_dir/$mode-files"
+          done

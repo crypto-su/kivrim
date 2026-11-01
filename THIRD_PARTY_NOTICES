@@ -2,8 +2,17 @@ KIVRIM - Third-party notices
 ===========================
 
 KIVRIM's original source code and documentation are licensed under the MIT
-License in LICENSE. The codec and directory archiver have no external library
-dependencies.
+License in LICENSE. The compression code has no external library dependencies.
+
+MSYS2 runtime on Windows
+------------------------
+
+Windows builds using the MSYS toolchain run with msys-2.0.dll, the POSIX runtime
+supplied by MSYS2. This runtime is not vendored in this repository and retains
+its own licensing terms.
+
+Runtime package, source, and license information:
+https://packages.msys2.org/packages/msys2-runtime
 
 XXH32 algorithm acknowledgment
 -------------------------------
